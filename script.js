@@ -80,6 +80,9 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('currentBalance').textContent = `Saldo: ${balance}€`;
 
         document.getElementById('spinButton').disabled = false;
+
+        // Riproduci il suono
+        document.getElementById('spinSound').play();
     });
 });
 
