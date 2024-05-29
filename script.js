@@ -1,13 +1,10 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Set initial balance
-    let balance = parseInt(prompt("Choose your starting balance:"));
-    document.getElementById('currentBalance').textContent = `Current Balance: $${balance}`;
+    let balance = parseFloat(prompt("Quanto vuoi caricare oggi?:")).toFixed(2);
+    document.getElementById('currentBalance').textContent = `Saldo: ${balance}€`;
 
-    // Hide setup, show slot machine
     document.getElementById('setup').style.display = 'none';
     document.getElementById('slotMachine').style.display = 'block';
 
-    // Symbol definitions
     const symbols = ['J', 'Q', 'K', 'foto1', 'foto2', 'foto3', 'foto4'];
     const symbolImages = {
         'J': 'images/J.png',
@@ -19,40 +16,35 @@ document.addEventListener("DOMContentLoaded", function() {
         'foto4': 'images/foto4.png',
     };
 
-    // Lines definition
     const lines = [
-        [0, 1, 2, 3, 4], // Top row
-        [5, 6, 7, 8, 9], // Middle row
-        [10, 11, 12, 13, 14], // Bottom row
+        [0, 1, 2, 3, 4],
+        [5, 6, 7, 8, 9],
+        [10, 11, 12, 13, 14],
     ];
 
-    // Symbol payouts (multipliers)
     const payouts = {
-        'J': {3: 1, 4: 5, 5: 10},
-        'Q': {3: 2, 4: 10, 5: 20},
-        'K': {3: 3, 4: 15, 5: 30},
-        'foto1': {3: 5, 4: 20, 5: 40},
-        'foto2': {3: 10, 4: 30, 5: 60},
-        'foto3': {3: 20, 4: 40, 5: 80},
-        'foto4': {3: 50, 4: 100, 5: 200},
+        'J': {3: 0.5, 4: 1, 5: 1.5},
+        'Q': {3: 0.75, 4: 1.5, 5: 2},
+        'K': {3: 1, 4: 2, 5: 3},
+        'foto1': {3: 2, 4: 5, 5: 10},
+        'foto2': {3: 4, 4: 8, 5: 13},
+        'foto3': {3: 5, 4: 10, 5: 15},
+        'foto4': {3: 7.5, 4: 15, 5: 30},
     };
 
-    // Spin button event listener
     document.getElementById('spinButton').addEventListener('click', function() {
         const result = document.getElementById('result');
-        const betValue = confirmedBet; // Utilizza la puntata confermata
+        const betValue = confirmedBet;
 
-        const currentBalance = parseInt(document.getElementById('currentBalance').textContent.replace('Current Balance: $', ''));
-        
+        const currentBalance = parseFloat(document.getElementById('currentBalance').textContent.replace('Saldo: ', '').replace('€', ''));
+
         if (currentBalance < betValue) {
-            alert("You don't have enough balance!");
+            alert("BROOO SEI STIRATOOOO!");
             return;
         }
 
-        // Disable spin button during spin
         document.getElementById('spinButton').disabled = true;
 
-        // Change images on reels
         const reels = Array.from(document.querySelectorAll('.reel'));
         reels.forEach(reel => {
             const symbolIndex = Math.floor(Math.random() * symbols.length);
@@ -62,7 +54,6 @@ document.addEventListener("DOMContentLoaded", function() {
             img.alt = symbol;
         });
 
-        // Evaluate spin result
         let winnings = 0;
         lines.forEach(line => {
             const lineSymbols = line.map(index => reels[index].querySelector('img').alt);
@@ -70,48 +61,50 @@ document.addEventListener("DOMContentLoaded", function() {
             const firstSymbol = lineSymbols[0];
             const payout = payouts[firstSymbol][lineLength];
             if (payout) {
-                winnings += payout * betValue; // Multiply payout by bet value
+                winnings += payout * betValue;
             }
         });
 
         if (winnings > 0) {
-            result.textContent = `You Win! You earned $${winnings}!`;
-            balance += winnings;
+            result.textContent = `CASSAAAAA!! hai vinto ${winnings}€ !`;
+            balance = (parseFloat(balance) + parseFloat(winnings)).toFixed(2);
         } else {
-            result.textContent = 'Try Again!';
-            balance -= betValue;
+            result.textContent = 'Solo chi molla è un perdente!';
+            balance = (parseFloat(balance) - parseFloat(betValue)).toFixed(2);
         }
 
-        // Update balance display   
-        document.getElementById('currentBalance').textContent = `Current Balance: $${balance}`;
+        if (balance < 0) {
+            balance = 0;
+        }
 
-        // Re-enable spin button after spin
+        document.getElementById('currentBalance').textContent = `Saldo: ${balance}€`;
+
         document.getElementById('spinButton').disabled = false;
     });
 });
 
-
-// Variabile per memorizzare la puntata confermata
 let confirmedBet = 1;
 
-// Funzione per aggiornare il valore della puntata
-function updateBetValue() {
-    const value = document.getElementById('betRange').value;
-    document.getElementById('betValue').textContent = value;
-    confirmedBet = parseInt(value); // Aggiorna la puntata confermata
+function validateBetValue() {
+    const value = parseFloat(document.getElementById('betInput').value);
+    const betError = document.getElementById('betError');
+
+    if (value < 0.5 || value > 100 || isNaN(value)) {
+        betError.style.display = 'block';
+    } else {
+        betError.style.display = 'none';
+        confirmedBet = value;
+    }
 }
 
-// Funzione per aprire il popup della puntata
 function openBetPopup() {
     document.getElementById('betPopup').style.display = 'block';
 }
 
-// Funzione per chiudere il popup della puntata
 function closeBetPopup() {
     document.getElementById('betPopup').style.display = 'none';
 }
 
-// Funzione per contare le occorrenze consecutive di un elemento in un array
 function countConsecutiveSymbols(arr) {
     let count = 1;
     for (let i = 1; i < arr.length; i++) {
@@ -124,23 +117,22 @@ function countConsecutiveSymbols(arr) {
     return count;
 }
 
-// Funzione per gestire il pulsante di spin
 function handleSpin() {
-    const currentBalance = parseInt(document.getElementById('currentBalance').textContent.replace('Current Balance: $', ''));
-    
+    const currentBalance = parseFloat(document.getElementById('currentBalance').textContent.replace('Saldo: ', '').replace('€', ''));
+
     if (currentBalance < confirmedBet) {
-        alert("You don't have enough balance!");
+        alert("BROOO SEI STIRATOOOO!");
         return;
     }
 
-    // Aggiorna il saldo e avvia il giro
-    const newBalance = currentBalance - confirmedBet;
-    document.getElementById('currentBalance').textContent = `Current Balance: $${newBalance}`;
+    const newBalance = (currentBalance - confirmedBet).toFixed(2);
+    document.getElementById('currentBalance').textContent = `Saldo: ${newBalance}€`;
     spin();
 }
 
-// Funzione per confermare la puntata
 function confirmBet() {
-    confirmedBet = parseInt(document.getElementById('betValue').textContent);
-    closeBetPopup();
+    validateBetValue();
+    if (document.getElementById('betError').style.display === 'none') {
+        closeBetPopup();
+    }
 }
